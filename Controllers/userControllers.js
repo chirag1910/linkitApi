@@ -114,12 +114,12 @@ const authGoogle = async (req, res) => {
             audience: process.env.GOOGLE_CLIENT_ID,
         });
 
-        const { name, email } = ticket.getPayload();
+        const { name, email, at_hash } = ticket.getPayload();
 
         try {
             const user = await User.findOne({ email });
             if (!user) {
-                const password = await bcrypt.hash(ticket.getUserId(), 7);
+                const password = await bcrypt.hash(at_hash, 7);
                 const user = await User.create({ name, email, password });
                 const token = generateToken(user._id);
 
