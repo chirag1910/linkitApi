@@ -45,4 +45,30 @@ const addBill = async (req, res) => {
     }
 };
 
-module.exports = { addBill };
+const deleteBill = async (req, res) => {
+    const { id, billId } = req.body;
+    if (!billId) {
+        return res.json({ status: "error", error: "Invalid bill ID" });
+    }
+    try {
+        await User.findByIdAndUpdate(
+            { _id: id },
+            {
+                $pull: {
+                    bills: {
+                        _id: billId,
+                    },
+                },
+            }
+        );
+
+        return res.json({
+            status: "ok",
+            message: "Bill deleted successfully",
+        });
+    } catch (error) {
+        return res.json({ status: "error", error: "Invalid bill ID" });
+    }
+};
+
+module.exports = { addBill, deleteBill };
