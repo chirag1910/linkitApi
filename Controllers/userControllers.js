@@ -23,35 +23,37 @@ const registerUser = async (req, res) => {
         });
     }
 
-    const password = await bcrypt.hash(plainPassword, 7);
-
     try {
-        const user = await User.create({ name, email, password });
+        const user = await User.findOne({ email });
+        if (!user) {
+            const password = await bcrypt.hash(plainPassword, 7);
+            const user = await User.create({ name, email, password });
+            const token = generateToken(user._id);
 
-        const token = generateToken(user._id);
+            res.cookie("JWT_TOKEN", token, {
+                maxAge: 7 * 24 * 60 * 60 * 1000,
+                httpOnly: true,
+                secure: true,
+                sameSite: true,
+            });
 
-        res.cookie("JWT_TOKEN", token, {
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-            httpOnly: true,
-            secure: true,
-            sameSite: true,
-        });
-
-        return res.json({
-            status: "ok",
-            name: user.name,
-            email: user.email,
-            token,
-        });
-    } catch (error) {
-        if (error.code === 11000) {
+            return res.json({
+                status: "ok",
+                name: user.name,
+                email: user.email,
+                token,
+            });
+        } else {
             return res.json({
                 status: "error",
                 error: "Email already exists",
             });
         }
-
-        throw error;
+    } catch (error) {
+        return res.json({
+            status: "error",
+            error: "Some error occurred",
+        });
     }
 };
 
@@ -65,28 +67,35 @@ const loginUser = async (req, res) => {
         return res.json({ status: "error", error: "Invalid password" });
     }
 
-    const user = await User.findOne({ email });
+    try {
+        const user = await User.findOne({ email });
 
-    if (user && (await bcrypt.compare(password, user.password))) {
-        const token = generateToken(user._id);
+        if (user && (await bcrypt.compare(password, user.password))) {
+            const token = generateToken(user._id);
 
-        res.cookie("JWT_TOKEN", token, {
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-            httpOnly: true,
-            secure: true,
-            sameSite: true,
-        });
+            res.cookie("JWT_TOKEN", token, {
+                maxAge: 7 * 24 * 60 * 60 * 1000,
+                httpOnly: true,
+                secure: true,
+                sameSite: true,
+            });
 
-        return res.json({
-            status: "ok",
-            name: user.name,
-            email: user.email,
-            token,
-        });
-    } else {
+            return res.json({
+                status: "ok",
+                name: user.name,
+                email: user.email,
+                token,
+            });
+        } else {
+            return res.json({
+                status: "error",
+                error: "Invalid email or password",
+            });
+        }
+    } catch (error) {
         return res.json({
             status: "error",
-            error: "Invalid email or password",
+            error: "Some error occurred",
         });
     }
 };
@@ -104,26 +113,28 @@ const authGoogle = async (req, res) => {
         });
 
         const { name, email } = ticket.getPayload();
+
         try {
-            const user = await User.create({ name, email });
-            const token = generateToken(user._id);
+            const user = await User.findOne({ email });
+            if (!user) {
+                const password = await bcrypt.hash(ticket.getUserId(), 7);
+                const user = await User.create({ name, email, password });
+                const token = generateToken(user._id);
 
-            res.cookie("JWT_TOKEN", token, {
-                maxAge: 7 * 24 * 60 * 60 * 1000,
-                httpOnly: true,
-                secure: true,
-                sameSite: true,
-            });
+                res.cookie("JWT_TOKEN", token, {
+                    maxAge: 7 * 24 * 60 * 60 * 1000,
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: true,
+                });
 
-            return res.json({
-                status: "ok",
-                name: user.name,
-                email: user.email,
-                token,
-            });
-        } catch (error) {
-            if (error.code === 11000) {
-                const user = await User.findOne({ email });
+                return res.json({
+                    status: "ok",
+                    name: user.name,
+                    email: user.email,
+                    token,
+                });
+            } else {
                 const token = generateToken(user._id);
 
                 res.cookie("JWT_TOKEN", token, {
@@ -140,8 +151,11 @@ const authGoogle = async (req, res) => {
                     token,
                 });
             }
-
-            throw error;
+        } catch (error) {
+            return res.json({
+                status: "error",
+                error: "Some error occurred",
+            });
         }
     } catch (error) {
         return res.json({ status: "error", error: "Invalid token" });
