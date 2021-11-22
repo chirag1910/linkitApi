@@ -19,9 +19,9 @@ router.post("/login", loginUser);
 router.post("/auth/google", authGoogle);
 router.post("/otp", sendOtp);
 router.post("/resetPassword", resetForgotPassword);
-router.get("/logout", auth, logoutUser);
-router.get("/", auth, getUser);
-router.delete("/delete", auth, deleteUser);
+router.post("/logout", auth, logoutUser);
+router.post("/", auth, getUser);
+router.post("/delete", auth, deleteUser);
 router.post("/all", admin, getAll);
 
 module.exports = router;
