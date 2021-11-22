@@ -20,7 +20,7 @@ router.post("/auth/google", authGoogle);
 router.post("/otp", sendOtp);
 router.post("/resetPassword", resetForgotPassword);
 router.post("/logout", auth, logoutUser);
-router.post("/", auth, getUser);
+router.post("/get", auth, getUser);
 router.post("/delete", auth, deleteUser);
 router.post("/all", admin, getAll);
 
