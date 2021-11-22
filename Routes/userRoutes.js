@@ -6,6 +6,8 @@ const {
     registerUser,
     loginUser,
     authGoogle,
+    sendOtp,
+    resetForgotPassword,
     logoutUser,
     getUser,
     deleteUser,
@@ -15,6 +17,8 @@ const {
 router.post("/signup", registerUser);
 router.post("/login", loginUser);
 router.post("/auth/google", authGoogle);
+router.post("/otp", sendOtp);
+router.post("/resetPassword", resetForgotPassword);
 router.get("/logout", auth, logoutUser);
 router.get("/", auth, getUser);
 router.delete("/delete", auth, deleteUser);

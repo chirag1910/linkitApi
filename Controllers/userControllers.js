@@ -1,6 +1,8 @@
 const User = require("../Models/userModel");
 const bcrypt = require("bcryptjs");
 const generateToken = require("../Utils/generateToken");
+const generateOTP = require("../Utils/generateOTP");
+const mail = require("../Utils/mail");
 const { OAuth2Client } = require("google-auth-library");
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -162,6 +164,88 @@ const authGoogle = async (req, res) => {
     }
 };
 
+const sendOtp = async (req, res) => {
+    const { email } = req.body;
+
+    if (!email || typeof email !== "string") {
+        return res.json({ status: "error", error: "Invalid email" });
+    }
+
+    try {
+        const user = await User.findOne({ email });
+
+        if (user) {
+            const otp = generateOTP();
+            const otpExpire = new Date(new Date().getTime() + 30 * 60 * 1000);
+
+            mail(email, otp);
+            await user.updateOne({ otp, otpExpire });
+
+            return res.json({
+                status: "ok",
+                message: "OTP sent successfully",
+            });
+        } else {
+            return res.json({ status: "error", error: "User not found" });
+        }
+    } catch (error) {
+        return res.json({
+            status: "error",
+            error: "Some error occurred",
+        });
+    }
+};
+
+const resetForgotPassword = async (req, res) => {
+    const { email, otp, password: newPassword } = req.body;
+
+    if (!email || typeof email !== "string") {
+        return res.json({ status: "error", error: "Invalid email" });
+    }
+    if (!otp) {
+        return res.json({ status: "error", error: "Invalid OTP" });
+    }
+    if (!newPassword || typeof newPassword !== "string") {
+        return res.json({ status: "error", error: "Invalid password" });
+    }
+    if (newPassword.length < 8) {
+        return res.json({
+            status: "error",
+            error: "Minimum password length must be 8 characters",
+        });
+    }
+
+    try {
+        const user = await User.findOne({ email });
+
+        if (user) {
+            if (user.otp === otp) {
+                if (user.otpExpire >= new Date()) {
+                    const password = await bcrypt.hash(newPassword, 7);
+
+                    await user.updateOne({ password });
+
+                    return res.json({
+                        status: "ok",
+                        message: "Password changed successfully",
+                    });
+                } else {
+                    return res.json({ status: "error", error: "OTP expired" });
+                }
+            } else {
+                return res.json({ status: "error", error: "Invalid OTP" });
+            }
+        } else {
+            return res.json({ status: "error", error: "User not found" });
+        }
+    } catch (error) {
+        return res.json({
+            status: "error",
+            error: "Some error occurred",
+        });
+    }
+};
+
 const logoutUser = async (req, res) => {
     res.clearCookie("JWT_TOKEN");
     return res.json({ status: "ok", message: "Logged out successfully" });
@@ -206,6 +290,8 @@ module.exports = {
     registerUser,
     loginUser,
     authGoogle,
+    sendOtp,
+    resetForgotPassword,
     logoutUser,
     getUser,
     deleteUser,
