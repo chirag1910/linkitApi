@@ -219,7 +219,7 @@ const resetForgotPassword = async (req, res) => {
         const user = await User.findOne({ email });
 
         if (user) {
-            if (user.otp === otp) {
+            if (user.otp == otp) {
                 if (user.otpExpire >= new Date()) {
                     const password = await bcrypt.hash(newPassword, 7);
 
