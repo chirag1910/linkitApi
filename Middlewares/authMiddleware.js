@@ -5,13 +5,17 @@ const auth = async (req, res, next) => {
     const token = req.cookies.JWT_TOKEN || req.body.JWT_TOKEN;
 
     if (token) {
-        const decoded = verify(token, process.env.JWT_SECRET);
-        const user = await User.findById(decoded.id);
+        try {
+            const decoded = verify(token, process.env.JWT_SECRET);
+            const user = await User.findById(decoded.id);
 
-        if (user) {
-            req.body["id"] = decoded.id;
-            next();
-        } else {
+            if (user) {
+                req.body["id"] = decoded.id;
+                next();
+            } else {
+                return res.json({ status: "error", error: "Invalid token" });
+            }
+        } catch (error) {
             return res.json({ status: "error", error: "Invalid token" });
         }
     } else {

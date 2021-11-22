@@ -1,0 +1,24 @@
+const mongoose = require("mongoose");
+
+const billSchema = new mongoose.Schema({
+    _id: {
+        type: mongoose.Types.ObjectId,
+        required: true,
+    },
+    amount: {
+        type: String,
+        required: true,
+    },
+    title: {
+        type: String,
+    },
+    description: {
+        type: String,
+    },
+    date: {
+        type: Date,
+        required: true,
+    },
+});
+
+module.exports = mongoose.model("Bill", billSchema);
