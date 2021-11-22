@@ -129,4 +129,22 @@ const updateBill = async (req, res) => {
     }
 };
 
-module.exports = { addBill, deleteBill, updateBill };
+const getBill = async (req, res) => {
+    const { id } = req.body;
+    try {
+        const user = await User.findById(id);
+
+        if (user) {
+            return res.json({
+                status: "ok",
+                bills: user.bills,
+            });
+        } else {
+            return res.json({ status: "error", error: "User not found" });
+        }
+    } catch (error) {
+        return res.json({ status: "error", error: "Some error occurred" });
+    }
+};
+
+module.exports = { addBill, deleteBill, updateBill, getBill };
