@@ -87,6 +87,8 @@ const registerUser = async (req, res) => {
                             password,
                         });
 
+                        await entry.remove();
+
                         const token = generateToken(user._id);
 
                         res.cookie("JWT_TOKEN", token, {
