@@ -1,5 +1,6 @@
 const User = require("../Models/userModel");
 const Bill = require("../Models/billModel");
+const OTP = require("../Models/otpModel");
 const bcrypt = require("bcryptjs");
 const generateToken = require("../Utils/generateToken");
 const generateOTP = require("../Utils/generateOTP");
@@ -7,8 +8,49 @@ const mail = require("../Utils/mail");
 const { OAuth2Client } = require("google-auth-library");
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
+const initializeUser = async (req, res) => {
+    const { email } = req.body;
+
+    if (!email || typeof email !== "string") {
+        return res.json({ status: "error", error: "Invalid email" });
+    }
+
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            const otp = generateOTP();
+            const otpExpire = new Date(new Date().getTime() + 30 * 60 * 1000);
+
+            mail(email, otp);
+
+            const entry = await OTP.findOne({ email });
+
+            if (entry) {
+                await entry.updateOne({ otp, otpExpire });
+            } else {
+                await OTP.create({ email, otp, otpExpire });
+            }
+
+            return res.json({
+                status: "ok",
+                message: "OTP sent successfully",
+            });
+        } else {
+            return res.json({
+                status: "error",
+                error: "Email already exists",
+            });
+        }
+    } catch (error) {
+        return res.json({
+            status: "error",
+            error: "Some error occurred",
+        });
+    }
+};
+
 const registerUser = async (req, res) => {
-    const { name, email, password: plainPassword } = req.body;
+    const { name, email, password: plainPassword, otp } = req.body;
 
     if (!name || typeof name !== "string") {
         return res.json({ status: "error", error: "Invalid name" });
@@ -25,27 +67,56 @@ const registerUser = async (req, res) => {
             error: "Minimum password length must be 8 characters",
         });
     }
+    if (!otp) {
+        return res.json({ status: "error", error: "Invalid OTP" });
+    }
 
     try {
         const user = await User.findOne({ email });
+        const entry = await OTP.findOne({ email });
+
         if (!user) {
-            const password = await bcrypt.hash(plainPassword, 7);
-            const user = await User.create({ name, email, password });
-            const token = generateToken(user._id);
+            if (entry) {
+                if (entry.otp == otp) {
+                    if (entry.otpExpire >= new Date()) {
+                        const password = await bcrypt.hash(plainPassword, 7);
 
-            res.cookie("JWT_TOKEN", token, {
-                maxAge: 7 * 24 * 60 * 60 * 1000,
-                httpOnly: true,
-                secure: true,
-                sameSite: true,
-            });
+                        const user = await User.create({
+                            name,
+                            email,
+                            password,
+                        });
 
-            return res.json({
-                status: "ok",
-                name: user.name,
-                email: user.email,
-                token,
-            });
+                        const token = generateToken(user._id);
+
+                        res.cookie("JWT_TOKEN", token, {
+                            maxAge: 7 * 24 * 60 * 60 * 1000,
+                            httpOnly: true,
+                            secure: true,
+                            sameSite: true,
+                        });
+
+                        return res.json({
+                            status: "ok",
+                            name: user.name,
+                            email: user.email,
+                            token,
+                        });
+                    } else {
+                        return res.json({
+                            status: "error",
+                            error: "OTP expired",
+                        });
+                    }
+                } else {
+                    return res.json({ status: "error", error: "Invalid OTP" });
+                }
+            } else {
+                return res.json({
+                    status: "error",
+                    error: "Please request OTP again",
+                });
+            }
         } else {
             return res.json({
                 status: "error",
@@ -312,6 +383,7 @@ const getAll = async (req, res) => {
 };
 
 module.exports = {
+    initializeUser,
     registerUser,
     loginUser,
     authGoogle,

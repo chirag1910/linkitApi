@@ -12,9 +12,9 @@ const sendMail = (mailTo, otp) => {
     const mailOptions = {
         from: process.env.GMAIL_EMAIL,
         to: mailTo,
-        subject: "Kakeibo OTP to reset password",
-        html: `<h1>${otp}</h1><h2> is your OTP to reset Kakeibo password</h2>
-        <p>OTP is valid for next 30 minutes</p>
+        subject: "Kakeibo OTP",
+        html: `<h1>OTP: ${otp}</h1>
+        <p>OTP is valid for next 30 minutes.</p>
         <p>Please do not share the OTP or login credentials with anyone.</p>`,
     };
 
