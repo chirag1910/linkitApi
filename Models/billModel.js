@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const billSchema = new mongoose.Schema({
-    _id: {
+    userID: {
         type: mongoose.Types.ObjectId,
         required: true,
     },

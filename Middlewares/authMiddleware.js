@@ -10,7 +10,7 @@ const auth = async (req, res, next) => {
             const user = await User.findById(decoded.id);
 
             if (user) {
-                req.body["id"] = decoded.id;
+                req.body["userID"] = decoded.id;
                 next();
             } else {
                 return res.json({ status: "error", error: "Invalid token" });

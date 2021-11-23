@@ -1,40 +1,37 @@
-const User = require("../Models/userModel");
-const mongooseTypes = require("mongoose").Types;
+const Bill = require("../Models/billModel");
 
 const addBill = async (req, res) => {
     try {
-        const { id, amount, title, description, date: plainDate } = req.body;
-        var date;
+        const {
+            userID,
+            amount,
+            title,
+            description,
+            date: plainDate,
+        } = req.body;
 
         if (!amount) {
             return res.json({ status: "error", error: "Invalid amount" });
         }
+
+        var date;
         if (!plainDate) {
             date = new Date();
         } else {
             date = new Date(plainDate);
         }
 
-        const billId = new mongooseTypes.ObjectId();
-
-        await User.findByIdAndUpdate(
-            { _id: id },
-            {
-                $push: {
-                    bills: {
-                        _id: billId,
-                        amount,
-                        title,
-                        description,
-                        date,
-                    },
-                },
-            }
-        );
+        const bill = await Bill.create({
+            userID,
+            amount,
+            title,
+            description,
+            date,
+        });
 
         return res.json({
             status: "ok",
-            _id: billId,
+            billID: bill._id,
             amount,
             title,
             description,
@@ -46,83 +43,69 @@ const addBill = async (req, res) => {
 };
 
 const deleteBill = async (req, res) => {
-    const { id, billId } = req.body;
-    if (!billId) {
-        return res.json({ status: "error", error: "Invalid bill ID" });
-    }
+    const { billID } = req.body;
+
     try {
-        await User.findByIdAndUpdate(
-            { _id: id },
-            {
-                $pull: {
-                    bills: {
-                        _id: billId,
-                    },
-                },
-            }
-        );
+        const bill = await Bill.findById(billID);
+
+        if (bill) {
+            bill.remove();
+
+            return res.json({
+                status: "ok",
+                message: "Bill deleted successfully",
+            });
+        } else {
+            return res.json({ status: "error", error: "Invalid bill ID" });
+        }
+    } catch (error) {
+        return res.json({ status: "error", error: "Some error occurred" });
+    }
+};
+
+const deleteBills = async (req, res) => {
+    const { userID } = req.body;
+
+    try {
+        const bills = await Bill.find({ userID });
+
+        bills.forEach(async (bill) => {
+            await bill.remove();
+        });
 
         return res.json({
             status: "ok",
-            message: "Bill deleted successfully",
+            message: "Bills deleted successfully",
         });
     } catch (error) {
-        return res.json({ status: "error", error: "Invalid bill ID" });
+        return res.json({ status: "error", error: "Some error occurred" });
     }
 };
 
 const updateBill = async (req, res) => {
-    const {
-        id,
-        billId,
-        amount,
-        title,
-        description,
-        date: plainDate,
-    } = req.body;
-
-    if (!billId) {
-        return res.json({ status: "error", error: "Invalid bill ID" });
-    }
+    const { billID, amount, title, description, date: plainDate } = req.body;
 
     try {
-        const user = await User.findOne({ _id: id, "bills._id": billId });
+        const bill = await Bill.findById(billID);
 
-        if (user) {
-            const bills = user.bills;
-            var prevAmount, prevTitle, prevDescription, prevDate;
-
-            bills.forEach((bill) => {
-                if (bill._id.equals(billId)) {
-                    prevAmount = bill.amount;
-                    prevTitle = bill.title;
-                    prevDescription = bill.description;
-                    prevDate = bill.date;
-                }
+        if (bill) {
+            await bill.updateOne({
+                amount,
+                title,
+                description,
+                date: plainDate && new Date(plainDate),
             });
-
-            await User.updateOne(
-                { _id: id, "bills._id": billId },
-                {
-                    $set: {
-                        "bills.$.amount": amount ? amount : prevAmount,
-                        "bills.$.title": title ? title : prevTitle,
-                        "bills.$.description": description
-                            ? description
-                            : prevDescription,
-                        "bills.$.date": plainDate
-                            ? new Date(plainDate)
-                            : prevDate,
-                    },
-                }
-            );
 
             return res.json({
                 status: "ok",
-                message: "Bill updated successfully",
+                billID: bill._id,
+                amount: amount || bill.amount,
+                title: title || bill.title,
+                description: description || bill.description,
+                plainDate: plainDate ? new Date(plainDate) : bill.date,
             });
         } else {
-            return res.json({ status: "error", error: "Bill not found" });
+            return res.json({ status: "error", error: "Invalid bill ID" });
         }
     } catch (error) {
         return res.json({ status: "error", error: "Some error occurred" });
@@ -130,21 +113,46 @@ const updateBill = async (req, res) => {
 };
 
 const getBill = async (req, res) => {
-    const { id } = req.body;
+    const { billID } = req.body;
     try {
-        const user = await User.findById(id);
+        const bill = await Bill.findById(billID);
 
-        if (user) {
+        if (bill) {
             return res.json({
                 status: "ok",
-                bills: user.bills,
+                billID: bill._id,
+                amount: bill.amount,
+                title: bill.title,
+                description: bill.description,
+                date: bill.date,
             });
         } else {
-            return res.json({ status: "error", error: "User not found" });
+            return res.json({ status: "error", error: "Invalid bill ID" });
         }
     } catch (error) {
         return res.json({ status: "error", error: "Some error occurred" });
     }
 };
 
-module.exports = { addBill, deleteBill, updateBill, getBill };
+const getBills = async (req, res) => {
+    const { userID } = req.body;
+    try {
+        const bills = await Bill.find({ userID });
+
+        return res.json({
+            status: "ok",
+            bills,
+        });
+    } catch (error) {
+        return res.json({ status: "error", error: "Some error occurred" });
+    }
+};
+
+module.exports = {
+    addBill,
+    deleteBill,
+    deleteBills,
+    updateBill,
+    getBill,
+    getBills,
+};

@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const Bill = require("./billModel").schema;
 
 const userSchema = new mongoose.Schema(
     {
@@ -16,7 +15,6 @@ const userSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
-        bills: [Bill],
         otp: {
             type: Number,
         },

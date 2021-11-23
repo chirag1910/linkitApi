@@ -1,4 +1,5 @@
 const User = require("../Models/userModel");
+const Bill = require("../Models/billModel");
 const bcrypt = require("bcryptjs");
 const generateToken = require("../Utils/generateToken");
 const generateOTP = require("../Utils/generateOTP");
@@ -223,7 +224,10 @@ const resetForgotPassword = async (req, res) => {
                 if (user.otpExpire >= new Date()) {
                     const password = await bcrypt.hash(newPassword, 7);
 
-                    await user.updateOne({ password });
+                    await user.updateOne({
+                        password,
+                        otpExpire: new Date(new Date().getTime() - 1),
+                    });
 
                     return res.json({
                         status: "ok",
@@ -252,32 +256,53 @@ const logoutUser = async (req, res) => {
 };
 
 const getUser = async (req, res) => {
-    const { id } = req.body;
-    const user = await User.findById(id);
+    const { userID } = req.body;
+    try {
+        const user = await User.findById(userID);
 
-    if (user) {
+        if (user) {
+            return res.json({
+                status: "ok",
+                name: user.name,
+                email: user.email,
+            });
+        } else {
+            return res.json({ status: "error", error: "User not found" });
+        }
+    } catch (error) {
         return res.json({
-            status: "ok",
-            name: user.name,
-            email: user.email,
+            status: "error",
+            error: "Some error occurred",
         });
-    } else {
-        return res.json({ status: "error", error: "User not found" });
     }
 };
 
 const deleteUser = async (req, res) => {
-    const { id } = req.body;
-    const user = await User.findById(id);
+    const { userID } = req.body;
+    try {
+        const user = await User.findById(userID);
 
-    if (user) {
-        await user.remove();
+        if (user) {
+            const bills = await Bill.find({ userID });
+
+            bills.forEach(async (bill) => {
+                await bill.remove();
+            });
+
+            await user.remove();
+
+            return res.json({
+                status: "ok",
+                message: "Account deleted successfully",
+            });
+        } else {
+            return res.json({ status: "error", error: "User not found" });
+        }
+    } catch (error) {
         return res.json({
-            status: "ok",
-            message: "Account deleted successfully",
+            status: "error",
+            error: "Some error occurred",
         });
-    } else {
-        return res.json({ status: "error", error: "User not found" });
     }
 };
 

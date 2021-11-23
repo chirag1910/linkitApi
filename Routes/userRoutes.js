@@ -22,6 +22,6 @@ router.post("/resetPassword", resetForgotPassword);
 router.post("/logout", auth, logoutUser);
 router.post("/get", auth, getUser);
 router.post("/delete", auth, deleteUser);
-router.post("/all", admin, getAll);
+router.post("/getAll", admin, getAll);
 
 module.exports = router;
