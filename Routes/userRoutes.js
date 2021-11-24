@@ -9,6 +9,7 @@ const {
     authGoogle,
     sendOtp,
     resetForgotPassword,
+    changePassword,
     logoutUser,
     getUser,
     deleteUser,
@@ -21,6 +22,7 @@ router.post("/login", loginUser);
 router.post("/auth/google", authGoogle);
 router.post("/otp", sendOtp);
 router.post("/resetPassword", resetForgotPassword);
+router.post("/changePassword", auth, changePassword);
 router.post("/logout", auth, logoutUser);
 router.post("/get", auth, getUser);
 router.post("/delete", auth, deleteUser);

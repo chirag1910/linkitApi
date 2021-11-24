@@ -323,6 +323,54 @@ const resetForgotPassword = async (req, res) => {
     }
 };
 
+const changePassword = async (req, res) => {
+    const { userID, oldPassword, newPassword } = req.body;
+
+    if (!oldPassword || typeof oldPassword !== "string") {
+        return res.json({ status: "error", error: "Invalid password" });
+    }
+    if (!newPassword || typeof newPassword !== "string") {
+        return res.json({ status: "error", error: "Invalid new password" });
+    }
+    if (newPassword.length < 8) {
+        return res.json({
+            status: "error",
+            error: "Minimum password length must be 8 characters",
+        });
+    }
+
+    try {
+        const user = await User.findById(userID);
+
+        if (user) {
+            if (await bcrypt.compare(oldPassword, user.password)) {
+                const password = await bcrypt.hash(newPassword, 7);
+
+                await user.updateOne({
+                    password,
+                });
+
+                return res.json({
+                    status: "ok",
+                    message: "Password changed successfully",
+                });
+            } else {
+                return res.json({
+                    status: "error",
+                    error: "Incorrect password",
+                });
+            }
+        } else {
+            return res.json({ status: "error", error: "User not found" });
+        }
+    } catch (error) {
+        return res.json({
+            status: "error",
+            error: "Some error occurred",
+        });
+    }
+};
+
 const logoutUser = async (req, res) => {
     res.clearCookie("JWT_TOKEN");
     return res.json({ status: "ok", message: "Logged out successfully" });
@@ -351,23 +399,35 @@ const getUser = async (req, res) => {
 };
 
 const deleteUser = async (req, res) => {
-    const { userID } = req.body;
+    const { userID, password } = req.body;
+
+    if (!password || typeof password !== "string") {
+        return res.json({ status: "error", error: "Invalid password" });
+    }
+
     try {
         const user = await User.findById(userID);
 
         if (user) {
-            const bills = await Bill.find({ userID });
+            if (await bcrypt.compare(password, user.password)) {
+                const bills = await Bill.find({ userID });
 
-            bills.forEach(async (bill) => {
-                await bill.remove();
-            });
+                bills.forEach(async (bill) => {
+                    await bill.remove();
+                });
 
-            await user.remove();
+                await user.remove();
 
-            return res.json({
-                status: "ok",
-                message: "Account deleted successfully",
-            });
+                return res.json({
+                    status: "ok",
+                    message: "Account deleted successfully",
+                });
+            } else {
+                return res.json({
+                    status: "error",
+                    error: "Incorrect password",
+                });
+            }
         } else {
             return res.json({ status: "error", error: "User not found" });
         }
@@ -391,6 +451,7 @@ module.exports = {
     authGoogle,
     sendOtp,
     resetForgotPassword,
+    changePassword,
     logoutUser,
     getUser,
     deleteUser,
