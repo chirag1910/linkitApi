@@ -203,6 +203,26 @@ const getTotalUrlsCount = async (req, res) => {
     }
 };
 
+const getTotalUrlsVisits = async (req, res) => {
+    const { userID } = req.body;
+
+    try {
+        const urls = await Url.find({ userID });
+
+        var visits = 0;
+        urls.forEach((url) => {
+            visits += url.visits;
+        });
+
+        return res.json({
+            status: "ok",
+            visits,
+        });
+    } catch (error) {
+        return res.json({ status: "error", error: "Some error occurred" });
+    }
+};
+
 const publicGetUrl = async (req, res) => {
     const { urlID } = req.body;
 
@@ -212,6 +232,8 @@ const publicGetUrl = async (req, res) => {
 
     try {
         const url = await Url.findOne({ urlID });
+
+        await url.updateOne({ visits: url.visits + 1 });
 
         if (url) {
             return res.json({
@@ -236,5 +258,6 @@ module.exports = {
     getUrl,
     getUrls,
     getTotalUrlsCount,
+    getTotalUrlsVisits,
     publicGetUrl,
 };
