@@ -1,5 +1,6 @@
 const User = require("../Models/userModel");
-const Bill = require("../Models/billModel");
+const UrlGroup = require("../Models/urlGroupModel");
+const Url = require("../Models/urlModel");
 const OTP = require("../Models/otpModel");
 const bcrypt = require("bcryptjs");
 const generateToken = require("../Utils/generateToken");
@@ -410,10 +411,19 @@ const deleteUser = async (req, res) => {
 
         if (user) {
             if (await bcrypt.compare(password, user.password)) {
-                const bills = await Bill.find({ userID });
+                const urlGroups = await UrlGroup.find({ userID });
 
-                bills.forEach(async (bill) => {
-                    await bill.remove();
+                urlGroups.forEach(async (urlGroup) => {
+                    const urls = await Url.find({
+                        userID,
+                        groupID: urlGroup.groupID,
+                    });
+
+                    urls.forEach(async (url) => {
+                        await url.remove();
+                    });
+
+                    await urlGroup.remove();
                 });
 
                 await user.remove();

@@ -1,24 +1,26 @@
 const mongoose = require("mongoose");
 
-const billSchema = new mongoose.Schema({
+const urlSchema = new mongoose.Schema({
     userID: {
         type: mongoose.Types.ObjectId,
         required: true,
     },
-    amount: {
-        type: Number,
+    groupID: {
+        type: String,
+        required: true,
+    },
+    urlID: {
+        type: String,
+        required: true,
+    },
+    fullUrl: {
+        type: String,
         required: true,
     },
     title: {
         type: String,
-    },
-    description: {
-        type: String,
-    },
-    date: {
-        type: Date,
         required: true,
     },
 });
 
-module.exports = mongoose.model("Bill", billSchema);
+module.exports = mongoose.model("Url", urlSchema);
