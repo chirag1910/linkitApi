@@ -90,6 +90,10 @@ const deleteUrlGroups = async (req, res) => {
 const updateUrlGroup = async (req, res) => {
     const { userID, groupID, title, public } = req.body;
 
+    if (title === "") {
+        return res.json({ status: "error", error: "Invalid title" });
+    }
+
     try {
         const urlGroup = await UrlGroup.findOne({ userID, groupID });
 
