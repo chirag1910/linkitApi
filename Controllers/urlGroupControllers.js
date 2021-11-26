@@ -123,14 +123,11 @@ const getUrlGroup = async (req, res) => {
         const urlGroup = await UrlGroup.findOne({ userID, groupID });
 
         if (urlGroup) {
-            const urls = await Url.find({ userID, groupID });
-
             return res.json({
                 status: "ok",
                 groupID: urlGroup.groupID,
                 title: urlGroup.title,
                 public: urlGroup.public,
-                urls,
             });
         } else {
             return res.json({ status: "error", error: "Invalid group ID" });
