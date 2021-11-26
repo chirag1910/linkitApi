@@ -37,6 +37,7 @@ const addUrl = async (req, res) => {
             urlID: url.urlID,
             title: url.title,
             fullUrl: url.fullUrl,
+            visits: url.visits,
         });
     } catch (error) {
         return res.json({ status: "error", error: "Some error occurred" });
@@ -106,6 +107,12 @@ const updateUrl = async (req, res) => {
     if (!urlID) {
         return res.json({ status: "error", error: "Invalid url ID" });
     }
+    if (title === "") {
+        return res.json({ status: "error", error: "Invalid title" });
+    }
+    if (fullUrl === "") {
+        return res.json({ status: "error", error: "Invalid full URL" });
+    }
     if (fullUrl && !isUrl(fullUrl)) {
         return res.json({ status: "error", error: "Invalid url" });
     }
@@ -157,6 +164,7 @@ const getUrl = async (req, res) => {
                 urlID: url.urlID,
                 title: url.title,
                 fullUrl: url.fullUrl,
+                visits: url.visits,
             });
         } else {
             return res.json({
