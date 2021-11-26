@@ -1,7 +1,6 @@
 const Url = require("../Models/urlModel");
 const shorten = require("nanoid").customAlphabet;
 const ObjectId = require("mongoose").Types.ObjectId;
-const isUrl = require("../Utils/validateUrl");
 
 const addUrl = async (req, res) => {
     const { userID, groupID, title, fullUrl } = req.body;
@@ -12,7 +11,7 @@ const addUrl = async (req, res) => {
     if (!title) {
         return res.json({ status: "error", error: "Invalid title" });
     }
-    if (!fullUrl || !isUrl(fullUrl)) {
+    if (!fullUrl) {
         return res.json({ status: "error", error: "Invalid URL" });
     }
 
@@ -112,9 +111,6 @@ const updateUrl = async (req, res) => {
     }
     if (fullUrl === "") {
         return res.json({ status: "error", error: "Invalid full URL" });
-    }
-    if (fullUrl && !isUrl(fullUrl)) {
-        return res.json({ status: "error", error: "Invalid url" });
     }
 
     try {
