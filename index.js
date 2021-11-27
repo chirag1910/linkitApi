@@ -3,11 +3,13 @@ require("dotenv").config();
 const cors = require("cors");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
+const { verify } = require("./Middlewares/privateApiMiddleware");
 
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({ credentials: true, origin: true }));
+app.use(verify);
 
 const userRoutes = require("./Routes/userRoutes");
 const urlGroupRoutes = require("./Routes/urlGroupRoutes");
