@@ -372,6 +372,36 @@ const changePassword = async (req, res) => {
     }
 };
 
+const changeName = async (req, res) => {
+    const { userID, name } = req.body;
+
+    if (!name || typeof name !== "string") {
+        return res.json({ status: "error", error: "Invalid name" });
+    }
+
+    try {
+        const user = await User.findById(userID);
+
+        if (user) {
+            await user.updateOne({
+                name,
+            });
+
+            return res.json({
+                status: "ok",
+                message: "Name changed successfully",
+            });
+        } else {
+            return res.json({ status: "error", error: "User not found" });
+        }
+    } catch (error) {
+        return res.json({
+            status: "error",
+            error: "Some error occurred",
+        });
+    }
+};
+
 const logoutUser = async (req, res) => {
     res.clearCookie("JWT_TOKEN");
     return res.json({ status: "ok", message: "Logged out successfully" });
@@ -462,6 +492,7 @@ module.exports = {
     sendOtp,
     resetForgotPassword,
     changePassword,
+    changeName,
     logoutUser,
     getUser,
     deleteUser,
