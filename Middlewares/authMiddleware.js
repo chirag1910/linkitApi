@@ -28,7 +28,7 @@ const auth = async (req, res, next) => {
 
 const admin = (req, res, next) => {
     const { adminKey } = req.body;
-    if (adminKey === process.env.ADMIN_KEY) {
+    if (adminKey && adminKey === process.env.ADMIN_KEY) {
         next();
     } else {
         return res.json({

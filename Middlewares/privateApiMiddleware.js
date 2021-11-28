@@ -1,7 +1,7 @@
 const verify = async (req, res, next) => {
     const { apiKey } = req.body;
 
-    if (apiKey === process.env.API_KEY) {
+    if (apiKey && apiKey === process.env.API_KEY) {
         next();
     } else {
         return res.json({
