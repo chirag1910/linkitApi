@@ -96,7 +96,7 @@ const registerUser = async (req, res) => {
                             maxAge: 7 * 24 * 60 * 60 * 1000,
                             httpOnly: true,
                             secure: true,
-                            sameSite: true,
+                            sameSite: "none",
                         });
 
                         return res.json({
@@ -154,7 +154,7 @@ const loginUser = async (req, res) => {
                 maxAge: 7 * 24 * 60 * 60 * 1000,
                 httpOnly: true,
                 secure: true,
-                sameSite: true,
+                sameSite: "none",
             });
 
             return res.json({
@@ -202,7 +202,7 @@ const authGoogle = async (req, res) => {
                     maxAge: 7 * 24 * 60 * 60 * 1000,
                     httpOnly: true,
                     secure: true,
-                    sameSite: true,
+                    sameSite: "none",
                 });
 
                 return res.json({
@@ -218,7 +218,7 @@ const authGoogle = async (req, res) => {
                     maxAge: 7 * 24 * 60 * 60 * 1000,
                     httpOnly: true,
                     secure: true,
-                    sameSite: true,
+                    sameSite: "none",
                 });
 
                 return res.json({
