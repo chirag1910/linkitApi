@@ -5,7 +5,7 @@ const OTP = require("../Models/otpModel");
 const bcrypt = require("bcryptjs");
 const generateToken = require("../Utils/generateToken");
 const generateOTP = require("../Utils/generateOTP");
-const mail = require("../Utils/mail");
+const mailOtp = require("../Utils/mailOtp");
 const { OAuth2Client } = require("google-auth-library");
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -22,7 +22,7 @@ const initializeUser = async (req, res) => {
             const otp = generateOTP();
             const otpExpire = new Date(new Date().getTime() + 30 * 60 * 1000);
 
-            mail(email, otp);
+            mailOtp(email, otp);
 
             const entry = await OTP.findOne({ email });
 
@@ -253,7 +253,7 @@ const sendOtp = async (req, res) => {
             const otp = generateOTP();
             const otpExpire = new Date(new Date().getTime() + 30 * 60 * 1000);
 
-            mail(email, otp);
+            mailOtp(email, otp);
             await user.updateOne({ otp, otpExpire });
 
             return res.json({
