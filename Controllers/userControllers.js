@@ -403,7 +403,12 @@ const changeName = async (req, res) => {
 };
 
 const logoutUser = async (req, res) => {
-    res.clearCookie("JWT_TOKEN");
+    res.cookie("JWT_TOKEN", "", {
+        maxAge: 0,
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+    });
     return res.json({ status: "ok", message: "Logged out successfully" });
 };
 
