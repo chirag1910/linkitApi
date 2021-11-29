@@ -13,7 +13,7 @@ const sendMail = (mailTo, otp) => {
     const mailOptions = {
         from: process.env.GMAIL_EMAIL,
         to: mailTo,
-        subject: "Kakeibo OTP",
+        subject: "LinkIt OTP",
         html: `<h1>OTP: ${otp}</h1>
         <p>OTP is valid for next 30 minutes.</p>
         <p>Please do not share the OTP or login credentials with anyone.</p>`,
