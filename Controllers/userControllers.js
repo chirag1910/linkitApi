@@ -103,6 +103,7 @@ const registerUser = async (req, res) => {
                             status: "ok",
                             name: user.name,
                             email: user.email,
+                            avatar: user.avatar,
                             token,
                         });
                     } else {
@@ -161,6 +162,7 @@ const loginUser = async (req, res) => {
                 status: "ok",
                 name: user.name,
                 email: user.email,
+                avatar: user.avatar,
                 token,
             });
         } else {
@@ -189,13 +191,18 @@ const authGoogle = async (req, res) => {
             audience: process.env.GOOGLE_CLIENT_ID,
         });
 
-        const { name, email, at_hash } = ticket.getPayload();
+        const { name, email, at_hash, picture: avatar } = ticket.getPayload();
 
         try {
             const user = await User.findOne({ email });
             if (!user) {
                 const password = await bcrypt.hash(at_hash, 7);
-                const user = await User.create({ name, email, password });
+                const user = await User.create({
+                    name,
+                    email,
+                    password,
+                    avatar,
+                });
                 const token = generateToken(user._id);
 
                 res.cookie("JWT_TOKEN", token, {
@@ -209,9 +216,16 @@ const authGoogle = async (req, res) => {
                     status: "ok",
                     name: user.name,
                     email: user.email,
+                    avatar: user.avatar,
                     token,
                 });
             } else {
+                if (user.avatar !== avatar) {
+                    await user.updateOne({
+                        avatar,
+                    });
+                }
+
                 const token = generateToken(user._id);
 
                 res.cookie("JWT_TOKEN", token, {
@@ -225,6 +239,7 @@ const authGoogle = async (req, res) => {
                     status: "ok",
                     name: user.name,
                     email: user.email,
+                    avatar: user.avatar,
                     token,
                 });
             }
@@ -422,6 +437,7 @@ const getUser = async (req, res) => {
                 status: "ok",
                 name: user.name,
                 email: user.email,
+                avatar: user.avatar,
             });
         } else {
             return res.json({ status: "error", error: "User not found" });
