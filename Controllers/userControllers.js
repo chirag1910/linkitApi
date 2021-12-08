@@ -239,7 +239,7 @@ const authGoogle = async (req, res) => {
                     status: "ok",
                     name: user.name,
                     email: user.email,
-                    avatar: user.avatar,
+                    avatar,
                     token,
                 });
             }
