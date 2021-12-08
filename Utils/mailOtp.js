@@ -14,11 +14,8 @@ const sendMail = (mailTo, otp) => {
         <div style="text-align: center;">
             <div style="text-align: center;margin: auto;padding: 50px 30px; width: 80%; max-width:500px; background-color:rgb(0, 138, 153, 0.1); border-radius: 10px;">
                 <h2 style="text-align: center; font-family: 'Trebuchet MS', sans-serif;font-size: xx-large; color: #002E33; font-weight: 600; letter-spacing: 3px;">
-                    Welcome!
+                    Hello!
                 </h2>
-                <p style="text-align: center; font-family: 'Trebuchet MS', sans-serif;font-size: medium; color: #000;margin-top:-10px;">
-                    We are excited to get you started!
-                </p>
 
                 <h3 style="text-align: center; font-family: 'Trebuchet MS', sans-serif;font-size: x-large; color: #000; font-weight: 500; margin-top: 50px ">
                     Your One Time Password is
