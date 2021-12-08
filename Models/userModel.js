@@ -21,6 +21,9 @@ const userSchema = new mongoose.Schema(
         otpExpire: {
             type: Date,
         },
+        avatar: {
+            type: String,
+        },
     },
     {
         timestamps: true,
