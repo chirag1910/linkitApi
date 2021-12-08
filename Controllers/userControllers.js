@@ -103,6 +103,7 @@ const registerUser = async (req, res) => {
                             status: "ok",
                             name: user.name,
                             email: user.email,
+                            avatar: user.avatar,
                             token,
                         });
                     } else {
@@ -161,6 +162,7 @@ const loginUser = async (req, res) => {
                 status: "ok",
                 name: user.name,
                 email: user.email,
+                avatar: user.avatar,
                 token,
             });
         } else {
@@ -209,6 +211,7 @@ const authGoogle = async (req, res) => {
                     status: "ok",
                     name: user.name,
                     email: user.email,
+                    avatar: user.avatar,
                     token,
                 });
             } else {
@@ -225,6 +228,7 @@ const authGoogle = async (req, res) => {
                     status: "ok",
                     name: user.name,
                     email: user.email,
+                    avatar: user.avatar,
                     token,
                 });
             }
@@ -422,6 +426,7 @@ const getUser = async (req, res) => {
                 status: "ok",
                 name: user.name,
                 email: user.email,
+                avatar: user.avatar,
             });
         } else {
             return res.json({ status: "error", error: "User not found" });
