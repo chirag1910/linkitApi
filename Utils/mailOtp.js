@@ -37,7 +37,7 @@ const sendMail = (mailTo, otp) => {
 `;
 
     const mailOptions = {
-        from: process.env.GMAIL_EMAIL,
+        from: "LinkIt <noreply@linkit.com>",
         to: mailTo,
         subject: "LinkIt OTP",
         html: body,

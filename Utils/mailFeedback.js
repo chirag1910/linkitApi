@@ -11,7 +11,7 @@ const sendMail = (userEmail, feedback) => {
     });
 
     const mailOptions = {
-        from: process.env.GMAIL_EMAIL,
+        from: "LinkIt <noreply@linkit.com>",
         to: process.env.FEEDBACK_EMAIL,
         subject: `Feedback | ${userEmail}`,
         text: feedback,
