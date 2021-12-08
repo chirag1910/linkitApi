@@ -220,6 +220,12 @@ const authGoogle = async (req, res) => {
                     token,
                 });
             } else {
+                if (user.avatar !== avatar) {
+                    await user.updateOne({
+                        avatar,
+                    });
+                }
+
                 const token = generateToken(user._id);
 
                 res.cookie("JWT_TOKEN", token, {
