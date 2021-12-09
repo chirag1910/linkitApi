@@ -58,7 +58,7 @@ const sendThankyouMail = (userEmail, feedback) => {
         from: "LinkIt <noreply@linkit.com>",
         to: userEmail,
         subject: "Thank you for your feedback | LinkIt",
-        text: body,
+        html: body,
     };
 
     transporter.sendMail(mailOptions, (error) => {
