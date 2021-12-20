@@ -17,9 +17,11 @@ const sendMail = (userEmail, feedback) => {
         text: feedback,
     };
 
-    return transporter.sendMail(mailOptions, (error) => {
-        return error ? false : sendThankyouMail(userEmail, feedback);
+    transporter.sendMail(mailOptions, (error) => {
+        error && console.log(error);
     });
+
+    sendThankyouMail(userEmail, feedback);
 };
 
 const sendThankyouMail = (userEmail, feedback) => {
@@ -59,8 +61,8 @@ const sendThankyouMail = (userEmail, feedback) => {
         html: body,
     };
 
-    return transporter.sendMail(mailOptions, (error) => {
-        return error ? false : true;
+    transporter.sendMail(mailOptions, (error) => {
+        error && console.log(error);
     });
 };
 

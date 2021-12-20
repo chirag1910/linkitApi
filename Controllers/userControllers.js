@@ -22,9 +22,7 @@ const initializeUser = async (req, res) => {
             const otp = generateOTP();
             const otpExpire = new Date(new Date().getTime() + 30 * 60 * 1000);
 
-            if (!mailOtp(email, otp)) {
-                return res.json({ status: "error", error: "OTP not sent" });
-            }
+            mailOtp(email, otp);
 
             const entry = await OTP.findOne({ email });
 
@@ -270,10 +268,7 @@ const sendOtp = async (req, res) => {
             const otp = generateOTP();
             const otpExpire = new Date(new Date().getTime() + 30 * 60 * 1000);
 
-            if (!mailOtp(email, otp)) {
-                return res.json({ status: "error", error: "OTP not sent" });
-            }
-
+            mailOtp(email, otp);
             await user.updateOne({ otp, otpExpire });
 
             return res.json({

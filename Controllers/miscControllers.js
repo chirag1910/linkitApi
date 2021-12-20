@@ -11,12 +11,7 @@ const sendFeedback = async (req, res) => {
     try {
         const user = await User.findById(userID);
         if (user) {
-            if (!mailFeedback(user.email, feedback)) {
-                return res.json({
-                    status: "error",
-                    error: "Feedback not sent",
-                });
-            }
+            mailFeedback(user.email, feedback);
 
             return res.json({
                 status: "ok",
