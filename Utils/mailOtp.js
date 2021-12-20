@@ -43,8 +43,8 @@ const sendMail = (mailTo, otp) => {
         html: body,
     };
 
-    transporter.sendMail(mailOptions, (error) => {
-        error && console.log(error);
+    return transporter.sendMail(mailOptions, (error) => {
+        return error ? false : true;
     });
 };
 
