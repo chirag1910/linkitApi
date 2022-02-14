@@ -22,7 +22,7 @@ const initializeUser = async (req, res) => {
             const otp = generateOTP();
             const otpExpire = new Date(new Date().getTime() + 30 * 60 * 1000);
 
-            mailOtp(email, otp);
+            mailOtp(email, otp, "user/signup");
 
             const entry = await OTP.findOne({ email });
 
@@ -268,7 +268,7 @@ const sendOtp = async (req, res) => {
             const otp = generateOTP();
             const otpExpire = new Date(new Date().getTime() + 30 * 60 * 1000);
 
-            mailOtp(email, otp);
+            mailOtp(email, otp, "user/resetPassword");
             await user.updateOne({ otp, otpExpire });
 
             return res.json({
